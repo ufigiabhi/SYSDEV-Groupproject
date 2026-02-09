@@ -106,7 +106,6 @@ class DashboardPage(BasePage):
     def run_forecast(self):
         self.ax.clear()
 
-        dates = pd.to_datetime(self.data["Date"], dayfirst=True)
         train_weeks = int(self.training_weeks.get())
         forecast_days = train_weeks * 7
 
@@ -114,18 +113,22 @@ class DashboardPage(BasePage):
             if col == "Date":
                 continue
 
-            series = self.data[["Date", col]].dropna()
-
             try:
-                ts = load_and_prepare_series(series, col)
+                ts = (
+                    self.data[["Date", col]]
+                    .dropna()
+                    .assign(Date=lambda df: pd.to_datetime(df["Date"], dayfirst=True))
+                    .set_index("Date")[col]
+                )
+
                 forecast = sarima_forecast(ts, steps=forecast_days)
 
                 future_dates = pd.date_range(
-                    start=dates.iloc[-1] + pd.Timedelta(days=1),
+                    start=ts.index[-1] + pd.Timedelta(days=1),
                     periods=len(forecast)
                 )
 
-                self.ax.plot(dates, self.data[col], label=f"{col} (Actual)")
+                self.ax.plot(ts.index, ts, label=f"{col} (Actual)")
                 self.ax.plot(
                     future_dates,
                     forecast,
@@ -139,6 +142,9 @@ class DashboardPage(BasePage):
         self.ax.set_title("Sales Forecast using SARIMA")
         self.ax.set_xlabel("Date")
         self.ax.set_ylabel("Number Sold")
-        self.ax.legend()
+
+        if self.ax.lines:
+            self.ax.legend()
+
         self.figure.autofmt_xdate()
         self.canvas.draw()
