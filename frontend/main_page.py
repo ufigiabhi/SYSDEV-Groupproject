@@ -1,7 +1,7 @@
 import tkinter as tk
-from home_page import HomePage
-from Dashboard_page import DashboardPage
-from page_two import PageTwo
+from .home_page import HomePage
+from .Dashboard_page import DashboardPage
+from .page_two import PageTwo
 
 class App(tk.Tk):
     def __init__(self):

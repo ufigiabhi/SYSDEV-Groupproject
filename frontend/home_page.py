@@ -1,7 +1,7 @@
 import tkinter as tk
 import os
 from PIL import Image, ImageTk
-from base_page import BasePage
+from .base_page import BasePage
 
 class HomePage(BasePage):
     def __init__(self, parent, controller):

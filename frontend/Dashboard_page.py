@@ -1,6 +1,6 @@
 import tkinter as tk
 from tkinter import filedialog, ttk
-from base_page import BasePage
+from .base_page import BasePage
 import matplotlib.pyplot as plt
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 import pandas as pd
