@@ -6,7 +6,7 @@ from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 import pandas as pd
 
 # ML imports
-from ml.forecasting import load_and_prepare_series, sarima_forecast
+from ml.forecasting import sarima_forecast
 
 
 class DashboardPage(BasePage):

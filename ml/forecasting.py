@@ -1,7 +1,7 @@
 import pandas as pd
 from statsmodels.tsa.statespace.sarimax import SARIMAX
 
-
+'''
 def load_and_prepare_series(csv_path, product_column):
     """
     loads a csv file and returns a cleaned pandas series
@@ -23,9 +23,8 @@ def load_and_prepare_series(csv_path, product_column):
     df.set_index("Date", inplace=True)
 
     series = pd.to_numeric(df[product_column], errors="coerce").dropna()
-    return series
-
-
+    return series 
+'''
 def sarima_forecast(series, steps=7):
     """
     trains a SARIMA model and returns a forecast series
