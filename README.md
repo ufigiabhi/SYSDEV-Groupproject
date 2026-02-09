@@ -15,3 +15,7 @@ the system should offer the option to provide tabular and graphical format of th
 predicted sales. 
 -->
 
+<!--
+To run the app
+bash: python -m frontend.main_page
+-->
