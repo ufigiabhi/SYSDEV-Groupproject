@@ -15,3 +15,7 @@ the system should offer the option to provide tabular and graphical format of th
 predicted sales. 
 -->
 
+<!--
+To run the app make sure you are in the environment(should say (.venv) on the terminal) and then
+bash: python -m frontend.main_page
+-->

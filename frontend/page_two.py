@@ -1,4 +1,4 @@
-from base_page import BasePage
+from .base_page import BasePage
 import tkinter as tk
 from tkinter import ttk, messagebox
 import pandas as pd
