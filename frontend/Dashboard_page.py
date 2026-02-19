@@ -390,7 +390,7 @@ class DashboardPage(BasePage):
 
                 # Weekly average table values
                 for w in range(4):
-                    key = f"{col} – Wk {w + 1}"
+                    key = f"{col} - Wk {w + 1}"
                     val = float(np.mean(smooth_vals[w * 7:(w + 1) * 7]))
                     forecast_table[key] = round(val, 1)
 
