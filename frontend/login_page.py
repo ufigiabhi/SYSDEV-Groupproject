@@ -1,15 +1,13 @@
 import tkinter as tk
-from tkinter import messagebox
 
-DARK_BG     = "#111111"
-PANEL_BG    = "#181818"
-CARD_BG     = "#1E1E1E"
-ACCENT_PINK = "#FF3E8A"
-FG_PRIMARY  = "#FFFFFF"
-FG_SECONDARY= "#AAAAAA"
-FG_MUTED    = "#555555"
+DARK_BG      = "#111111"
+PANEL_BG     = "#181818"
+CARD_BG      = "#1E1E1E"
+ACCENT_PINK  = "#FF3E8A"
+FG_PRIMARY   = "#FFFFFF"
+FG_SECONDARY = "#AAAAAA"
+FG_MUTED     = "#555555"
 
-# Hardcoded credentials in a real system these would be hashed and stored securely
 VALID_USERS = {
     "admin":   "bristol2026",
     "manager": "pinkcafe1",
@@ -23,9 +21,9 @@ def _hover(btn, normal, hot):
 
 class LoginPage(tk.Frame):
     """
-    Simple login screen shown before the main application loads.
-    Restricts access to authorised cafe staff only, addressing
-    non-functional requirement NF3 (data processed locally and securely).
+    Login screen shown before the main application loads.
+    Restricts access to authorised cafe staff only — NF3.
+    No default credentials are displayed to the user.
     """
 
     def __init__(self, parent, on_success):
@@ -35,12 +33,10 @@ class LoginPage(tk.Frame):
         self._build_ui()
 
     def _build_ui(self):
-        # Centre card
         card = tk.Frame(self, bg=CARD_BG,
                         highlightbackground="#2A2A2A", highlightthickness=1)
         card.place(relx=0.5, rely=0.5, anchor="center")
 
-        # Brand
         tk.Frame(card, bg=ACCENT_PINK, height=4).pack(fill="x")
 
         inner = tk.Frame(card, bg=CARD_BG)
@@ -60,16 +56,16 @@ class LoginPage(tk.Frame):
                  font=("Helvetica", 9),
                  fg=FG_SECONDARY, bg=CARD_BG, anchor="w").pack(fill="x")
         self.username_var = tk.StringVar()
-        username_entry = tk.Entry(inner,
-                                  textvariable=self.username_var,
-                                  font=("Helvetica", 11),
-                                  bg=PANEL_BG, fg=FG_PRIMARY,
-                                  insertbackground=ACCENT_PINK,
-                                  relief="flat", bd=0,
-                                  highlightthickness=1,
-                                  highlightbackground="#333333",
-                                  highlightcolor=ACCENT_PINK,
-                                  width=28)
+        username_entry = tk.Entry(
+            inner, textvariable=self.username_var,
+            font=("Helvetica", 11),
+            bg=PANEL_BG, fg=FG_PRIMARY,
+            insertbackground=ACCENT_PINK,
+            relief="flat", bd=0,
+            highlightthickness=1,
+            highlightbackground="#333333",
+            highlightcolor=ACCENT_PINK,
+            width=28)
         username_entry.pack(ipady=8, pady=(4, 16))
         username_entry.bind("<Return>", lambda e: self.password_entry.focus())
 
@@ -78,47 +74,45 @@ class LoginPage(tk.Frame):
                  font=("Helvetica", 9),
                  fg=FG_SECONDARY, bg=CARD_BG, anchor="w").pack(fill="x")
         self.password_var = tk.StringVar()
-        self.password_entry = tk.Entry(inner,
-                                       textvariable=self.password_var,
-                                       show="*",
-                                       font=("Helvetica", 11),
-                                       bg=PANEL_BG, fg=FG_PRIMARY,
-                                       insertbackground=ACCENT_PINK,
-                                       relief="flat", bd=0,
-                                       highlightthickness=1,
-                                       highlightbackground="#333333",
-                                       highlightcolor=ACCENT_PINK,
-                                       width=28)
+        self.password_entry = tk.Entry(
+            inner, textvariable=self.password_var,
+            show="*",
+            font=("Helvetica", 11),
+            bg=PANEL_BG, fg=FG_PRIMARY,
+            insertbackground=ACCENT_PINK,
+            relief="flat", bd=0,
+            highlightthickness=1,
+            highlightbackground="#333333",
+            highlightcolor=ACCENT_PINK,
+            width=28)
         self.password_entry.pack(ipady=8, pady=(4, 8))
         self.password_entry.bind("<Return>", lambda e: self._attempt_login())
 
         # Error label (hidden until needed)
         self.error_var = tk.StringVar()
-        self.error_lbl = tk.Label(inner,
-                                  textvariable=self.error_var,
-                                  font=("Helvetica", 9),
-                                  fg="#E74C3C", bg=CARD_BG)
-        self.error_lbl.pack(pady=(0, 12))
+        tk.Label(inner,
+                 textvariable=self.error_var,
+                 font=("Helvetica", 9),
+                 fg="#E74C3C", bg=CARD_BG).pack(pady=(0, 12))
 
-        # Login button
-        login_btn = tk.Button(inner,
-                              text="Sign In",
-                              command=self._attempt_login,
-                              font=("Helvetica", 10, "bold"),
-                              bg=ACCENT_PINK, fg=FG_PRIMARY,
-                              padx=24, pady=10,
-                              bd=0, relief="flat", cursor="hand2",
-                              width=24)
+        # Sign in button
+        login_btn = tk.Button(
+            inner, text="Sign In",
+            command=self._attempt_login,
+            font=("Helvetica", 10, "bold"),
+            bg=ACCENT_PINK, fg=FG_PRIMARY,
+            padx=24, pady=10,
+            bd=0, relief="flat", cursor="hand2",
+            width=24)
         login_btn.pack()
         _hover(login_btn, ACCENT_PINK, "#D0005A")
 
-        # Hint
+        # Security note, deliberately no credentials shown
         tk.Label(inner,
-                 text="Default: admin / bristol2026",
+                 text="Contact your system administrator for access.",
                  font=("Helvetica", 8, "italic"),
                  fg=FG_MUTED, bg=CARD_BG).pack(pady=(16, 0))
 
-        # Focus username on load
         username_entry.focus()
 
     def _attempt_login(self):
@@ -132,11 +126,11 @@ class LoginPage(tk.Frame):
             self._attempts += 1
             if self._attempts >= 3:
                 self.error_var.set(
-                    f"Too many failed attempts ({self._attempts}). "
+                    f"Access locked after {self._attempts} failed attempts. "
                     "Contact your system administrator.")
             else:
                 self.error_var.set(
-                    f"Incorrect username or password. "
+                    f"Incorrect username or password.  "
                     f"Attempt {self._attempts} of 3.")
             self.password_var.set("")
             self.password_entry.focus()
