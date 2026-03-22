@@ -27,9 +27,9 @@ def _hover(btn, normal, hot):
 def _smart_forecast(ts_train, steps=28):
     """
     Tiered forecast:
-      - 42+ days  > SARIMA (with flat-line fallback detection)
-      - 14-41 days > Seasonal MA
-      - < 14 days  > flat mean
+      - 42+ days  → SARIMA (with flat-line fallback detection)
+      - 14-41 days → Seasonal MA
+      - < 14 days  → flat mean
     """
     n    = len(ts_train)
     vals = ts_train.values.astype(float)
@@ -120,7 +120,7 @@ class DashboardPage(BasePage):
         up_btn.pack(side="left", padx=(14, 8))
         _hover(up_btn, ACCENT_PINK, "#D0005A")
 
-        # Training period spinner, auto-runs forecast on change
+        # Training period spinner auto-runs forecast on change
         tk.Label(bar, text="Training period:",
                  font=("Helvetica", 9),
                  fg=FG_SECONDARY, bg=PANEL_BG).pack(side="left", padx=(14, 4))
@@ -137,7 +137,7 @@ class DashboardPage(BasePage):
                  font=("Helvetica", 9),
                  fg=FG_MUTED, bg=PANEL_BG).pack(side="left", padx=(2, 14))
 
-        # NOTE: "Update Forecast" button removed,spinner already triggers
+        # NOTE: "Update Forecast" button removed spinner already triggers
         # re-forecast immediately via _on_training_change.
 
         # Zoom dropdown
@@ -364,6 +364,14 @@ class DashboardPage(BasePage):
                                                        steps=FORECAST_DAYS)
                 methods_used.add(method)
 
+                # Hard-cap to exactly FORECAST_DAYS values so weekly
+                # slicing always produces exactly 4 non-overlapping buckets
+                smooth_vals = np.asarray(smooth_vals).flatten()[:FORECAST_DAYS]
+                if len(smooth_vals) < FORECAST_DAYS:
+                    smooth_vals = np.pad(smooth_vals,
+                                         (0, FORECAST_DAYS - len(smooth_vals)),
+                                         constant_values=smooth_vals[-1])
+
                 t_std = float(ts_train.std())
 
                 future_dates = pd.date_range(
@@ -440,8 +448,7 @@ class DashboardPage(BasePage):
             f"Forecast updated  ({train_weeks}wk training · {method_str})",
             ACCENT_GREEN)
 
-    
-    # Zoom  FIX: each option now sets a genuinely different x range
+    # Zoom FIX: each option now sets a genuinely different x range
     def apply_zoom(self):
         if not self._plot_data or not self._all_dates:
             return
@@ -509,6 +516,10 @@ class DashboardPage(BasePage):
                 product = key
                 wk      = 1
 
+            # Only ever show weeks 1-4
+            if wk > 4:
+                continue
+
             if product not in products:
                 products.append(product)
             if wk not in weeks:
@@ -516,6 +527,7 @@ class DashboardPage(BasePage):
             data.setdefault(wk, {})[product] = val
 
         weeks.sort()
+        weeks = weeks[:4]  # hard cap , never more than 4
         cols = ["Week"] + products
         self.tree_forecast["columns"] = cols
         self.tree_forecast.heading("Week", text="Week")
