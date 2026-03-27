@@ -126,7 +126,7 @@ class LoginPage(tk.Frame):
         self.login_btn.unbind("<Enter>")
         self.login_btn.unbind("<Leave>")
         self.error_var.set(
-            "Access locked — 3 failed attempts.\n"
+            "Access locked - 3 failed attempts.\n"
             "Contact your system administrator.")
 
     def _attempt_login(self):
