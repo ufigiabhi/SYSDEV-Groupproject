@@ -23,13 +23,15 @@ class LoginPage(tk.Frame):
     """
     Login screen shown before the main application loads.
     Restricts access to authorised cafe staff only — NF3.
-    No default credentials are displayed to the user.
+    After 3 failed attempts the system is fully locked:
+    all inputs are disabled and no further login is possible.
     """
 
     def __init__(self, parent, on_success):
         super().__init__(parent, bg=DARK_BG)
         self.on_success = on_success
         self._attempts  = 0
+        self._locked    = False
         self._build_ui()
 
     def _build_ui(self):
@@ -51,12 +53,11 @@ class LoginPage(tk.Frame):
 
         tk.Frame(inner, bg="#2A2A2A", height=1).pack(fill="x", pady=(0, 24))
 
-        # Username
         tk.Label(inner, text="Username",
                  font=("Helvetica", 9),
                  fg=FG_SECONDARY, bg=CARD_BG, anchor="w").pack(fill="x")
         self.username_var = tk.StringVar()
-        username_entry = tk.Entry(
+        self.username_entry = tk.Entry(
             inner, textvariable=self.username_var,
             font=("Helvetica", 11),
             bg=PANEL_BG, fg=FG_PRIMARY,
@@ -66,10 +67,9 @@ class LoginPage(tk.Frame):
             highlightbackground="#333333",
             highlightcolor=ACCENT_PINK,
             width=28)
-        username_entry.pack(ipady=8, pady=(4, 16))
-        username_entry.bind("<Return>", lambda e: self.password_entry.focus())
+        self.username_entry.pack(ipady=8, pady=(4, 16))
+        self.username_entry.bind("<Return>", lambda e: self.password_entry.focus())
 
-        # Password
         tk.Label(inner, text="Password",
                  font=("Helvetica", 9),
                  fg=FG_SECONDARY, bg=CARD_BG, anchor="w").pack(fill="x")
@@ -88,15 +88,15 @@ class LoginPage(tk.Frame):
         self.password_entry.pack(ipady=8, pady=(4, 8))
         self.password_entry.bind("<Return>", lambda e: self._attempt_login())
 
-        # Error label (hidden until needed)
         self.error_var = tk.StringVar()
         tk.Label(inner,
                  textvariable=self.error_var,
                  font=("Helvetica", 9),
-                 fg="#E74C3C", bg=CARD_BG).pack(pady=(0, 12))
+                 fg="#E74C3C", bg=CARD_BG,
+                 wraplength=220,
+                 justify="center").pack(pady=(0, 12))
 
-        # Sign in button
-        login_btn = tk.Button(
+        self.login_btn = tk.Button(
             inner, text="Sign In",
             command=self._attempt_login,
             font=("Helvetica", 10, "bold"),
@@ -104,18 +104,36 @@ class LoginPage(tk.Frame):
             padx=24, pady=10,
             bd=0, relief="flat", cursor="hand2",
             width=24)
-        login_btn.pack()
-        _hover(login_btn, ACCENT_PINK, "#D0005A")
+        self.login_btn.pack()
+        _hover(self.login_btn, ACCENT_PINK, "#D0005A")
 
-        # Security note, deliberately no credentials shown
         tk.Label(inner,
                  text="Contact your system administrator for access.",
                  font=("Helvetica", 8, "italic"),
                  fg=FG_MUTED, bg=CARD_BG).pack(pady=(16, 0))
 
-        username_entry.focus()
+        self.username_entry.focus()
+
+    def _lock_system(self):
+        """Permanently disable all input after 3 failed attempts."""
+        self._locked = True
+        self.username_entry.config(state="disabled")
+        self.password_entry.config(state="disabled")
+        self.login_btn.config(
+            state="disabled",
+            bg="#444444",
+            cursor="arrow")
+        self.login_btn.unbind("<Enter>")
+        self.login_btn.unbind("<Leave>")
+        self.error_var.set(
+            "Access locked — 3 failed attempts.\n"
+            "Contact your system administrator.")
 
     def _attempt_login(self):
+        # Hard block : if locked, reject silently regardless of credentials
+        if self._locked:
+            return
+
         username = self.username_var.get().strip().lower()
         password = self.password_var.get().strip()
 
@@ -124,13 +142,14 @@ class LoginPage(tk.Frame):
             self.on_success()
         else:
             self._attempts += 1
-            if self._attempts >= 3:
-                self.error_var.set(
-                    f"Access locked after {self._attempts} failed attempts. "
-                    "Contact your system administrator.")
-            else:
-                self.error_var.set(
-                    f"Incorrect username or password.  "
-                    f"Attempt {self._attempts} of 3.")
             self.password_var.set("")
             self.password_entry.focus()
+
+            if self._attempts >= 3:
+                self._lock_system()
+            else:
+                remaining = 3 - self._attempts
+                self.error_var.set(
+                    f"Incorrect username or password. "
+                    f"Attempt {self._attempts} of 3 "
+                    f"({remaining} remaining).")
