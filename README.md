@@ -66,7 +66,7 @@ Pillow
 - 4-week forecast with adjustable training window (4–8 weeks)
 - Business Intelligence page: KPI cards, trends, AI recommendations
 - Login authentication with 3-attempt lockout
-- Fully local — no internet connection required
+- Fully local, no internet connection required
 
 ## Academic Context
 This project was developed for the Systems Development Group Project module
