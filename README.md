@@ -1,4 +1,4 @@
-# Bristol Pink Cafe — Sales Forecasting System
+# Bristol Pink Cafe - Sales Forecasting System
 **UFCF7S-30-2 Systems Development Group Project | UWE Bristol 2025–26**
 
 ## Project Overview
